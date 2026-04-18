@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dr. Capi — Medicina UNIDAVI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --azul:#023E88;--azul-claro:#00ADEF;--azul-mid:#0057b8;
+  --bg:#f0f4fb;--surface:#fff;--surface2:#e8f0fb;
+  --border:#ccdaf5;--text:#0f1f38;--muted:#4a6080;--faint:#8aa0bc;
+  --green:#0a7c5c;--green-bg:#e6f7f2;--green-border:#b2e0d4;
+  --red:#a12c2c;--red-bg:#fdf0f0;--red-border:#f5c0c0;
+  --yellow-bg:#fff8e1;--yellow-border:#ffe082;--yellow-text:#7a5c00;
+  --radius:0.75rem;--radius-lg:1.25rem;
+  --shadow:0 2px 12px rgba(2,62,136,0.08);--shadow-lg:0 8px 32px rgba(2,62,136,0.14);
+  --tr:180ms cubic-bezier(0.16,1,0.3,1);
+}
+html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;font-size:1rem;color:var(--text);background:var(--bg);min-height:100dvh;line-height:1.6}
+
+/* SCREEN SYSTEM */
+.screen{display:none;min-height:100dvh;flex-direction:column}
+.screen.active{display:flex}
+
+/* ===== LOGIN SCREEN ===== */
+#screen-login{align-items:center;justify-content:center;padding:2rem 1.25rem;background:linear-gradient(160deg,var(--azul) 0%,var(--azul-mid) 50%,#0077cc 100%)}
+.login-card{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:2.5rem 2rem;width:100%;max-width:420px;text-align:center}
+.login-logo{margin-bottom:1.25rem}
+.login-logo svg{display:inline-block}
+.login-card h1{font-family:'Instrument Serif',serif;font-size:1.75rem;color:var(--azul);font-weight:400;line-height:1.2;margin-bottom:0.4rem}
+.login-card p{font-size:0.88rem;color:var(--muted);margin-bottom:1.75rem}
+.login-field{text-align:left;margin-bottom:1rem}
+.login-field label{display:block;font-size:0.8rem;font-weight:600;color:var(--muted);margin-bottom:0.35rem;text-transform:uppercase;letter-spacing:0.05em}
+.login-field input{width:100%;padding:0.7rem 1rem;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:0.95rem;color:var(--text);outline:none;transition:border-color var(--tr),box-shadow var(--tr)}
+.login-field input:focus{border-color:var(--azul-claro);box-shadow:0 0 0 3px rgba(0,173,239,0.15)}
+.login-error{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red);font-size:0.82rem;padding:0.6rem 0.9rem;border-radius:var(--radius);margin-bottom:1rem;display:none}
+.login-error.show{display:block}
+.btn-login{width:100%;padding:0.85rem;background:linear-gradient(135deg,var(--azul),var(--azul-mid));color:#fff;border:none;border-radius:var(--radius);font-family:inherit;font-size:1rem;font-weight:600;cursor:pointer;transition:all var(--tr);box-shadow:0 4px 14px rgba(2,62,136,0.22)}
+.btn-login:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.login-note{font-size:0.76rem;color:var(--faint);margin-top:1rem}
+.unidavi-badge{display:inline-flex;align-items:center;gap:0.4rem;background:var(--surface2);border:1px solid var(--border);border-radius:999px;padding:0.3rem 0.9rem;font-size:0.75rem;font-weight:600;color:var(--azul);margin-bottom:1.5rem;letter-spacing:0.04em;text-transform:uppercase}
+
+/* ===== MAIN APP ===== */
+#screen-app{flex-direction:column}
+header{background:linear-gradient(135deg,var(--azul) 0%,var(--azul-mid) 60%,var(--azul-claro) 100%);padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+.header-brand{display:flex;align-items:center;gap:0.75rem}
+.header-brand h1{font-family:'Instrument Serif',serif;font-size:1.4rem;color:#fff;font-weight:400}
+.header-brand span{color:var(--azul-claro)}
+.header-user{font-size:0.8rem;color:rgba(255,255,255,0.75);text-align:right}
+.header-user strong{display:block;color:#fff;font-size:0.88rem}
+.btn-logout{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:#fff;font-size:0.75rem;padding:0.3rem 0.75rem;border-radius:999px;cursor:pointer;margin-top:0.3rem;transition:background var(--tr)}
+.btn-logout:hover{background:rgba(255,255,255,0.25)}
+
+/* TABS */
+.tabs{display:flex;background:var(--surface);border-bottom:2px solid var(--border);padding:0 1.5rem}
+.tab{padding:0.85rem 1.1rem;font-size:0.85rem;font-weight:500;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-2px;transition:all var(--tr)}
+.tab:hover{color:var(--azul)}
+.tab.active{color:var(--azul);border-bottom-color:var(--azul);font-weight:600}
+
+/* TAB PANELS */
+.tab-panel{display:none;padding:1.5rem;max-width:820px;margin:0 auto;width:100%}
+.tab-panel.active{display:block}
+
+/* CARD */
+.card{background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:1.5rem;margin-bottom:1.25rem;border:1px solid var(--border)}
+.card-title{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--azul);font-weight:700;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem}
+.card-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* FORM */
+label{display:block;font-size:0.82rem;font-weight:500;color:var(--muted);margin-bottom:0.35rem}
+input[type=text],select,textarea{width:100%;padding:0.65rem 0.9rem;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:0.9rem;color:var(--text);background:var(--surface);transition:border-color var(--tr),box-shadow var(--tr);outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--azul-claro);box-shadow:0 0 0 3px rgba(0,173,239,0.15)}
+textarea{resize:vertical;min-height:60px;line-height:1.5}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:500px){.row2{grid-template-columns:1fr}}
+
+/* MODOS */
+.modos{display:grid;grid-template-columns:repeat(2,1fr);gap:0.65rem}
+@media(max-width:500px){.modos{grid-template-columns:1fr}}
+.modo-btn{background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius);padding:0.9rem;cursor:pointer;transition:all var(--tr);text-align:left;display:flex;align-items:flex-start;gap:0.65rem}
+.modo-btn:hover{border-color:var(--azul-claro);background:#ddf0fc}
+.modo-btn.selected{border-color:var(--azul);background:#ddeeff;box-shadow:0 0 0 3px rgba(2,62,136,0.1)}
+.modo-icon{font-size:1.3rem;line-height:1;flex-shrink:0;margin-top:0.1rem}
+.modo-label{font-size:0.85rem;font-weight:600;color:var(--azul)}
+.modo-desc{font-size:0.74rem;color:var(--muted);margin-top:0.15rem}
+
+/* AVISO */
+.aviso{background:var(--yellow-bg);border:1px solid var(--yellow-border);border-radius:var(--radius);padding:0.8rem 1rem;font-size:0.8rem;color:var(--yellow-text);margin-top:1rem;line-height:1.5}
+
+/* BTNS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.75rem 1.25rem;border:none;border-radius:var(--radius);font-family:inherit;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all var(--tr)}
+.btn-primary{background:linear-gradient(135deg,var(--azul),var(--azul-mid));color:#fff;box-shadow:0 3px 12px rgba(2,62,136,0.22)}
+.btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.btn-outline{background:transparent;color:var(--azul);border:2px solid var(--border)}
+.btn-outline:hover{border-color:var(--azul);background:var(--surface2)}
+.btn-green{background:linear-gradient(135deg,var(--green),#0d9c74);color:#fff;box-shadow:0 3px 12px rgba(10,124,92,0.2)}
+.btn-green:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-row{display:flex;gap:0.75rem;margin-top:1.1rem;flex-wrap:wrap}
+
+/* PRESCRIÇÃO */
+.rx-field{margin-bottom:1rem}
+.rx-label{font-size:0.78rem;font-weight:700;color:var(--azul);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;display:flex;align-items:center;gap:0.4rem}
+.rx-num{background:var(--azul);color:#fff;border-radius:50%;width:1.25rem;height:1.25rem;display:inline-flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:700;flex-shrink:0}
+.rx-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin-bottom:1.25rem}
+@media(max-width:500px){.rx-grid{grid-template-columns:1fr}}
+
+/* RELATÓRIO */
+.rel-textarea{font-family:monospace;font-size:0.82rem;min-height:160px;background:#f8faff}
+.rel-result{display:none;background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius);padding:1.25rem;margin-top:1rem}
+.rel-result.show{display:block}
+.rel-row{display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--green-border);font-size:0.85rem}
+.rel-row:last-child{border:none}
+.rel-key{font-weight:600;color:var(--green);min-width:110px}
+.rel-val{color:var(--text);text-align:right;flex:1}
+.lacuna-tag{display:inline-block;background:#fff3cd;border:1px solid #ffc107;color:#856404;font-size:0.74rem;padding:0.15rem 0.5rem;border-radius:999px;margin:0.15rem}
+.acerto-tag{display:inline-block;background:var(--green-bg);border:1px solid var(--green-border);color:var(--green);font-size:0.74rem;padding:0.15rem 0.5rem;border-radius:999px;margin:0.15rem}
+.score-bar{height:8px;background:var(--border);border-radius:999px;margin-top:0.5rem;overflow:hidden}
+.score-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--azul-claro),var(--green));transition:width 0.8s ease}
+
+/* HISTÓRICO */
+.hist-empty{text-align:center;color:var(--faint);font-size:0.88rem;padding:2rem}
+.hist-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:0.75rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}
+.hist-meta{font-size:0.78rem;color:var(--muted);margin-top:0.25rem}
+.hist-score{font-size:1.2rem;font-weight:700;color:var(--azul);white-space:nowrap}
+.hist-badge{font-size:0.72rem;font-weight:600;padding:0.2rem 0.6rem;border-radius:999px;background:var(--surface2);color:var(--azul);border:1px solid var(--border)}
+
+/* TOAST */
+#toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(2rem);background:var(--azul);color:#fff;padding:0.7rem 1.4rem;border-radius:999px;font-size:0.85rem;font-weight:500;box-shadow:var(--shadow-lg);opacity:0;transition:all 0.3s ease;z-index:999;white-space:nowrap;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+footer{text-align:center;padding:1.25rem;font-size:0.72rem;color:var(--faint);border-top:1px solid var(--border);margin-top:auto}
+</style>
+</head>
+<body>
+
+<!-- ===== SCREEN: LOGIN ===== -->
+<div class="screen active" id="screen-login">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none" aria-label="Dr. Capi">
+        <circle cx="26" cy="26" r="26" fill="#023E88"/>
+        <circle cx="26" cy="26" r="20" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+        <path d="M18 20 C18 16 22 14 26 14 C30 14 34 16 34 20 C34 24 31 26 28 27 L28 30" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M24 18 L24 22 M22 20 L26 20" stroke="#00ADEF" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="28" cy="33" r="2" fill="white"/>
+        <path d="M20 36 C20 36 22 40 26 40 C30 40 32 36 32 36" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="unidavi-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+      Medicina · UNIDAVI
+    </div>
+    <h1>Dr. <span style="color:var(--azul-claro)">Capi</span></h1>
+    <p>Preceptor Virtual do Internato Médico</p>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-field">
+      <label>E-mail institucional</label>
+      <input type="text" id="login-email" placeholder="seunome@unidavi.edu.br" autocomplete="off" onkeydown="if(event.key==='Enter')fazerLogin()">
+    </div>
+    <div class="login-field">
+      <label>Seu nome (como quer ser chamado)</label>
+      <input type="text" id="login-nome" placeholder="Ex: Mariana ou Dr. Silva" autocomplete="off" onkeydown="if(event.key==='Enter')fazerLogin()">
+    </div>
+    <div class="login-field">
+      <label>Fase do internato</label>
+      <select id="login-fase">
+        <option value="">Selecione sua fase...</option>
+        <option value="9ª fase">9ª fase</option>
+        <option value="10ª fase">10ª fase</option>
+        <option value="11ª fase">11ª fase</option>
+        <option value="12ª fase">12ª fase</option>
+      </select>
+    </div>
+    <button class="btn-login" onclick="fazerLogin()">Entrar no Dr. Capi</button>
+    <p class="login-note">Acesso exclusivo para acadêmicos com e-mail @unidavi.edu.br</p>
+  </div>
+</div>
+
+<!-- ===== SCREEN: APP ===== -->
+<div class="screen" id="screen-app">
+  <header>
+    <div class="header-brand">
+      <svg width="32" height="32" viewBox="0 0 52 52" fill="none">
+        <circle cx="26" cy="26" r="26" fill="rgba(255,255,255,0.15)"/>
+        <path d="M18 20 C18 16 22 14 26 14 C30 14 34 16 34 20 C34 24 31 26 28 27 L28 30" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M24 18 L24 22 M22 20 L26 20" stroke="#00ADEF" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="28" cy="33" r="2" fill="white"/>
+      </svg>
+      <h1>Dr. <span>Capi</span></h1>
+    </div>
+    <div class="header-user">
+      <strong id="header-nome">—</strong>
+      <span id="header-fase">—</span>
+      <br>
+      <button class="btn-logout" onclick="logout()">Sair</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" onclick="trocarTab('iniciar',this)">🏁 Iniciar</button>
+    <button class="tab" onclick="trocarTab('prescricao',this)">📋 Prescrição</button>
+    <button class="tab" onclick="trocarTab('relatorio',this)">📊 Relatório</button>
+    <button class="tab" onclick="trocarTab('historico',this)">🗂️ Histórico</button>
+  </div>
+
+  <!-- TAB: INICIAR -->
+  <div class="tab-panel active" id="tab-iniciar">
+    <div class="card">
+      <div class="card-title">🎯 Escolha o modo</div>
+      <div class="modos" id="modos">
+        <button class="modo-btn" data-modo="TREINO" onclick="selecionarModo(this)">
+          <span class="modo-icon">📖</span>
+          <div><div class="modo-label">Treino por Tema</div><div class="modo-desc">Estude um tema com perguntas progressivas</div></div>
+        </button>
+        <button class="modo-btn" data-modo="SIMULADO" onclick="selecionarModo(this)">
+          <span class="modo-icon">🎯</span>
+          <div><div class="modo-label">Simulado ENAMED</div><div class="modo-desc">Questões no formato das provas nacionais</div></div>
+        </button>
+        <button class="modo-btn" data-modo="CASO" onclick="selecionarModo(this)">
+          <span class="modo-icon">📋</span>
+          <div><div class="modo-label">Caso Clínico</div><div class="modo-desc">Caso progressivo com raciocínio guiado</div></div>
+        </button>
+        <button class="modo-btn selected" data-modo="ROUND" onclick="selecionarModo(this)">
+          <span class="modo-icon">🏥</span>
+          <div><div class="modo-label">Round com o Capi</div><div class="modo-desc">Apresente um caso real + prescrição</div></div>
+        </button>
+      </div>
+      <div class="aviso">
+        ⚠️ <strong>LGPD — absoluto.</strong> Não envie nome completo, CPF, data de nascimento, prontuário, RG, CNS, endereço, telefone ou qualquer identificador de paciente.
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btnIniciar" onclick="iniciarCapi()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Iniciar com o Dr. Capi
+        </button>
+        <button class="btn btn-outline" onclick="copiarAbertura()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Só copiar
+        </button>
+      </div>
+    </div>
+    <div class="card" style="background:var(--surface2);border-style:dashed">
+      <div class="card-title">💡 Fluxo recomendado</div>
+      <div style="font-size:0.85rem;color:var(--muted);line-height:2">
+        <strong>1.</strong> Escolha o modo e clique em <em>Iniciar com o Dr. Capi</em><br>
+        <strong>2.</strong> Cole o texto no Space e inicie a conversa<br>
+        <strong>3.</strong> Ao final do Round → use a aba <em>Prescrição</em><br>
+        <strong>4.</strong> Cole a prescrição no Space → discussão socrática<br>
+        <strong>5.</strong> Peça o <code>📊 RELATÓRIO</code> ao Dr. Capi → cole na aba <em>Relatório</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: PRESCRIÇÃO -->
+  <div class="tab-panel" id="tab-prescricao">
+    <div class="card">
+      <div class="card-title">📋 Folha de Prescrição</div>
+      <div class="rx-grid">
+        <div>
+          <label>Paciente (iniciais fictícias)</label>
+          <input type="text" id="rx-pac" placeholder="Ex: A.S.">
+        </div>
+        <div>
+          <label>Idade / Peso estimado</label>
+          <input type="text" id="rx-idade" placeholder="Ex: 16 anos / 55 kg">
+        </div>
+        <div>
+          <label>Data / Hora</label>
+          <input type="text" id="rx-data">
+        </div>
+      </div>
+      <div class="rx-field">
+        <div class="rx-label"><span class="rx-num">1</span>Dieta</div>
+        <textarea id="rx1" placeholder="Tipo, via, restrições (ex: dieta líquida VO, hipossódica, sem gordura)"></textarea>
+      </div>
+      <div class="rx-field">
+        <div class="rx-label"><span class="rx-num">2</span>Sinais Vitais</div>
+        <textarea id="rx2" placeholder="Frequência de aferição e parâmetros de alerta (ex: PA, FC, Temp, SatO2, diurese)"></textarea>
+      </div>
+      <div class="rx-field">
+        <div class="rx-label"><span class="rx-num">3</span>Acesso e Hidratação</div>
+        <textarea id="rx3" placeholder="Via, solução, volume, velocidade (ex: SF 0,9% 1000mL EV 12/12h)"></textarea>
+      </div>
+      <div class="rx-field">
+        <div class="rx-label"><span class="rx-num">4</span>Sintomáticos</div>
+        <textarea id="rx4" placeholder="Nome, dose, via, intervalo, condição (ex: se dor / se febre / se náusea)"></textarea>
+      </div>
+      <div class="rx-field">
+        <div class="rx-label"><span class="rx-num">5</span>Terapia Específica</div>
+        <textarea id="rx5" placeholder="Nome, dose, via, intervalo e duração do tratamento"></textarea>
+      </div>
+      <div class="rx-field">
+        <div class="rx-label"><span class="rx-num">6</span>Profilaxias / Medidas Gerais</div>
+        <textarea id="rx6" placeholder="DVT, úlcera de estresse, restrição de atividade, notificação compulsória, outros"></textarea>
+      </div>
+      <div class="rx-field">
+        <div class="rx-label"><span class="rx-num">7</span>Observações / Parâmetros de Reavaliação</div>
+        <textarea id="rx7" placeholder="Critérios de alerta, diurese horária, reavaliação em Xh, etc."></textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="copiarPrescricao()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copiar e colar no Dr. Capi
+        </button>
+        <button class="btn btn-outline" onclick="limparPrescricao()">Limpar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: RELATÓRIO -->
+  <div class="tab-panel" id="tab-relatorio">
+    <div class="card">
+      <div class="card-title">📊 Cole o relatório do Dr. Capi</div>
+      <p style="font-size:0.83rem;color:var(--muted);margin-bottom:1rem">Após a sessão, peça ao Dr. Capi: <code style="background:var(--surface2);padding:0.15rem 0.4rem;border-radius:4px">📊 RELATÓRIO</code> — copie o bloco gerado e cole abaixo.</p>
+      <textarea class="rel-textarea" id="rel-input" placeholder="Cole aqui o bloco RELATÓRIO_CAPI gerado pelo Dr. Capi..."></textarea>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="processarRelatorio()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Processar Relatório
+        </button>
+      </div>
+      <div class="rel-result" id="rel-result"></div>
+    </div>
+    <div class="card" id="card-export" style="display:none">
+      <div class="card-title">💾 Exportar</div>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="exportarCSV()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Baixar CSV desta sessão
+        </button>
+        <button class="btn btn-outline" onclick="exportarHistoricoCSV()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Baixar CSV histórico completo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: HISTÓRICO -->
+  <div class="tab-panel" id="tab-historico">
+    <div class="card">
+      <div class="card-title">🗂️ Minhas sessões</div>
+      <div id="historico-lista"><div class="hist-empty">Nenhuma sessão registrada ainda.<br>Complete um Round e processe o relatório.</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📈 Resumo</div>
+      <div id="resumo-stats" style="font-size:0.85rem;color:var(--muted)">Sem dados ainda.</div>
+    </div>
+  </div>
+
+  <footer>Dr. Capi · Ferramenta educacional · Medicina UNIDAVI · Não substitui preceptor nem valida condutas reais.</footer>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SPACE_URL = "https://www.perplexity.ai/spaces/dr-capi-unidavi-medicina-1A4fOsHsRwKlttFMYfpIdg";
+let usuario = null;
+let modoSelecionado = "ROUND";
+let ultimoRelatorio = null;
+let historico = [];
+
+// ===== LOGIN =====
+function fazerLogin(){
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const nome = document.getElementById('login-nome').value.trim();
+  const fase = document.getElementById('login-fase').value;
+  const err = document.getElementById('login-error');
+  if(!email){mostrarErro(err,'Digite seu e-mail institucional.');return;}
+  if(!email.endsWith('@unidavi.edu.br')){mostrarErro(err,'Acesso restrito a e-mails @unidavi.edu.br.');return;}
+  if(!nome){mostrarErro(err,'Digite como quer ser chamado.');return;}
+  if(!fase){mostrarErro(err,'Selecione sua fase.');return;}
+  err.classList.remove('show');
+  usuario = {email,nome,fase};
+  document.getElementById('header-nome').textContent = nome;
+  document.getElementById('header-fase').textContent = fase;
+  // Preenche data na prescrição
+  const agora = new Date();
+  document.getElementById('rx-data').value = agora.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) + ' · ' + agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  trocarTela('screen-app');
+  carregarHistorico();
+}
+
+function mostrarErro(el,msg){el.textContent=msg;el.classList.add('show');}
+
+function logout(){
+  usuario=null;modoSelecionado="ROUND";
+  document.getElementById('login-email').value='';
+  document.getElementById('login-nome').value='';
+  document.getElementById('login-fase').value='';
+  trocarTela('screen-login');
+}
+
+function trocarTela(id){
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active')});
+  document.getElementById(id).classList.add('active');
+}
+
+// ===== TABS =====
+function trocarTab(id,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+  if(id==='historico')renderizarHistorico();
+}
+
+// ===== MODOS =====
+function selecionarModo(btn){
+  document.querySelectorAll('.modo-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  modoSelecionado=btn.dataset.modo;
+}
+
+// ===== INICIAR =====
+const emojis={TREINO:'📖 TREINO',SIMULADO:'🎯 SIMULADO',CASO:'📋 CASO',ROUND:'🏥 ROUND'};
+
+function gerarTextoAbertura(){
+  return `${usuario.nome}, ${usuario.fase}
+${emojis[modoSelecionado]}`;
+}
+
+function iniciarCapi(){
+  const txt = gerarTextoAbertura();
+  navigator.clipboard.writeText(txt).then(()=>{
+    mostrarToast('✅ Copiado! Cole no Dr. Capi.');
+    setTimeout(()=>window.open(SPACE_URL,'_blank'),500);
+  }).catch(()=>{window.open(SPACE_URL,'_blank');mostrarToast('Abrindo o Dr. Capi...');});
+}
+
+function copiarAbertura(){
+  navigator.clipboard.writeText(gerarTextoAbertura()).then(()=>mostrarToast('✅ Texto copiado!')).catch(()=>mostrarToast('Erro ao copiar.'));
+}
+
+// ===== PRESCRIÇÃO =====
+function copiarPrescricao(){
+  const p=document.getElementById('rx-pac').value.trim()||'—';
+  const i=document.getElementById('rx-idade').value.trim()||'—';
+  const d=document.getElementById('rx-data').value.trim()||'—';
+  const campos=[
+    ['DIETA',document.getElementById('rx1').value.trim()],
+    ['SINAIS VITAIS',document.getElementById('rx2').value.trim()],
+    ['ACESSO E HIDRATAÇÃO',document.getElementById('rx3').value.trim()],
+    ['SINTOMÁTICOS',document.getElementById('rx4').value.trim()],
+    ['TERAPIA ESPECÍFICA',document.getElementById('rx5').value.trim()],
+    ['PROFILAXIAS / MEDIDAS GERAIS',document.getElementById('rx6').value.trim()],
+    ['OBSERVAÇÕES / REAVALIAÇÃO',document.getElementById('rx7').value.trim()],
+  ];
+  const preenchidos=campos.filter(c=>c[1]);
+  if(!preenchidos.length){mostrarToast('⚠️ Preencha ao menos um campo.');return;}
+  let txt=`📋 PRESCRIÇÃO MÉDICA
+Paciente: ${p} | ${i} | ${d}
+${'─'.repeat(38)}
+`;
+  campos.forEach((c,idx)=>{txt+=`${idx+1}. ${c[0]}
+${c[1]||'(não preenchido)'}
+
+`;});
+  txt+='─'.repeat(38)+`
+Médico interno: ${usuario.nome} | ${usuario.fase}`;
+  navigator.clipboard.writeText(txt).then(()=>{
+    mostrarToast('✅ Prescrição copiada! Cole no Dr. Capi.');
+  }).catch(()=>mostrarToast('Erro ao copiar.'));
+}
+
+function limparPrescricao(){
+  ['rx-pac','rx-idade','rx1','rx2','rx3','rx4','rx5','rx6','rx7'].forEach(id=>{document.getElementById(id).value='';});
+  const agora=new Date();
+  document.getElementById('rx-data').value=agora.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' · '+agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  mostrarToast('Prescrição limpa.');
+}
+
+// ===== RELATÓRIO =====
+function processarRelatorio(){
+  const raw = document.getElementById('rel-input').value.trim();
+  if(!raw){mostrarToast('⚠️ Cole o relatório primeiro.');return;}
+  const dados = {};
+  raw.split('
+').forEach(linha=>{
+    const sep = linha.indexOf(':');
+    if(sep>0){
+      const k=linha.substring(0,sep).trim().toLowerCase().replace(/\s+/g,'_');
+      const v=linha.substring(sep+1).trim();
+      dados[k]=v;
+    }
+  });
+  if(!dados.aluno && !dados.tema && !dados.modo){
+    mostrarToast('⚠️ Formato não reconhecido. Peça o RELATÓRIO_CAPI ao Dr. Capi.');
+    return;
+  }
+  // Adiciona dados do usuário logado se faltar
+  if(!dados.aluno) dados.aluno = usuario.nome;
+  if(!dados.fase) dados.fase = usuario.fase;
+  if(!dados.data) dados.data = new Date().toLocaleDateString('pt-BR');
+  dados.email = usuario.email;
+  ultimoRelatorio = dados;
+  // Salva no histórico
+  historico.push({...dados, ts: Date.now()});
+  salvarHistorico();
+  // Renderiza resultado
+  const score = parseInt(dados.desempenho)||0;
+  const pct = (score/5)*100;
+  const acertos = (dados.acertos||'').split(',').filter(Boolean);
+  const lacunas = (dados.lacunas||'').split(',').filter(Boolean);
+  let html = `
+    <div style="margin-bottom:0.75rem">
+      <div style="font-size:0.8rem;color:var(--green);font-weight:600;margin-bottom:0.25rem">Desempenho geral</div>
+      <div style="font-size:1.5rem;font-weight:700;color:var(--azul)">${score}/5</div>
+      <div class="score-bar"><div class="score-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="rel-row"><span class="rel-key">Aluno</span><span class="rel-val">${dados.aluno||'—'}</span></div>
+    <div class="rel-row"><span class="rel-key">Fase</span><span class="rel-val">${dados.fase||'—'}</span></div>
+    <div class="rel-row"><span class="rel-key">Modo</span><span class="rel-val">${dados.modo||'—'}</span></div>
+    <div class="rel-row"><span class="rel-key">Tema</span><span class="rel-val">${dados.tema||'—'}</span></div>
+    <div class="rel-row"><span class="rel-key">Data</span><span class="rel-val">${dados.data||'—'}</span></div>`;
+  if(acertos.length){
+    html+=`<div class="rel-row"><span class="rel-key">Acertos</span><span class="rel-val">${acertos.map(a=>`<span class="acerto-tag">${a.trim()}</span>`).join('')}</span></div>`;
+  }
+  if(lacunas.length){
+    html+=`<div class="rel-row"><span class="rel-key">Lacunas</span><span class="rel-val">${lacunas.map(l=>`<span class="lacuna-tag">${l.trim()}</span>`).join('')}</span></div>`;
+  }
+  if(dados.observacao){
+    html+=`<div class="rel-row"><span class="rel-key">Observação</span><span class="rel-val" style="text-align:left;padding-left:0.5rem">${dados.observacao}</span></div>`;
+  }
+  const rd = document.getElementById('rel-result');
+  rd.innerHTML = html;
+  rd.classList.add('show');
+  document.getElementById('card-export').style.display='block';
+  mostrarToast('✅ Relatório processado e salvo!');
+}
+
+// ===== EXPORT CSV =====
+function csvEscape(v){return '"'+(v||'').replace(/"/g,'""')+'"';}
+const csvCols=['aluno','fase','email','modo','tema','data','acertos','lacunas','desempenho','observacao'];
+
+function exportarCSV(){
+  if(!ultimoRelatorio){mostrarToast('Nenhum relatório processado.');return;}
+  const header=csvCols.join(',');
+  const row=csvCols.map(c=>csvEscape(ultimoRelatorio[c]||'')).join(',');
+  baixarCSV('drcapi-sessao.csv',header+'
+'+row);
+}
+
+function exportarHistoricoCSV(){
+  if(!historico.length){mostrarToast('Histórico vazio.');return;}
+  const header=csvCols.join(',');
+  const rows=historico.map(h=>csvCols.map(c=>csvEscape(h[c]||'')).join(',')).join('
+');
+  baixarCSV('drcapi-historico.csv',header+'
+'+rows);
+}
+
+function baixarCSV(nome,conteudo){
+  const blob=new Blob(['﻿'+conteudo],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=nome;
+  a.click();
+  mostrarToast('✅ CSV baixado!');
+}
+
+// ===== HISTÓRICO =====
+function salvarHistorico(){
+  try{sessionStorage.setItem('drcapi_hist',JSON.stringify(historico));}catch(e){}
+}
+function carregarHistorico(){
+  try{const d=sessionStorage.getItem('drcapi_hist');if(d)historico=JSON.parse(d);}catch(e){}
+}
+function renderizarHistorico(){
+  const el=document.getElementById('historico-lista');
+  const stats=document.getElementById('resumo-stats');
+  if(!historico.length){
+    el.innerHTML='<div class="hist-empty">Nenhuma sessão registrada ainda.<br>Complete um Round e processe o relatório.</div>';
+    stats.textContent='Sem dados ainda.';
+    return;
+  }
+  const sorted=[...historico].sort((a,b)=>b.ts-a.ts);
+  el.innerHTML=sorted.map(h=>`
+    <div class="hist-item">
+      <div>
+        <div style="font-weight:600">${h.tema||'(sem tema)'} <span class="hist-badge">${h.modo||'—'}</span></div>
+        <div class="hist-meta">${h.data||'—'} · ${h.fase||'—'}</div>
+        ${h.lacunas?`<div style="margin-top:0.4rem">${h.lacunas.split(',').map(l=>`<span class="lacuna-tag">${l.trim()}</span>`).join('')}</div>`:''}
+      </div>
+      <div class="hist-score">${h.desempenho||'—'}/5</div>
+    </div>`).join('');
+  const total=historico.length;
+  const media=(historico.reduce((s,h)=>s+(parseInt(h.desempenho)||0),0)/total).toFixed(1);
+  const temas=[...new Set(historico.map(h=>h.tema).filter(Boolean))];
+  stats.innerHTML=`
+    <div class="rel-row"><span class="rel-key">Sessões</span><span class="rel-val">${total}</span></div>
+    <div class="rel-row"><span class="rel-key">Média</span><span class="rel-val">${media}/5</span></div>
+    <div class="rel-row"><span class="rel-key">Temas</span><span class="rel-val">${temas.join(', ')||'—'}</span></div>`;
+}
+
+// ===== TOAST =====
+function mostrarToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>
